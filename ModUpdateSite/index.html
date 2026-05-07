@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOD_PROTOCOL // ENDURANCE_TRACKER</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="scanline"></div>
+    <div class="grid-overlay"></div>
+
+    <main class="terminal-container">
+        <header>
+            <div class="id-tag">USER: ME ;) // Minecraft Mod Protocol</div>
+            <h1 id="typewriter"></h1>
+        </header>
+
+        <section class="tracker">
+            <div class="label">CURRENT_WAIT_DURATION</div>
+            <div id="countup">
+                <span id="d_block"><span id="days">14</span><span class="unit">D</span></span>
+                <span id="h_block"><span id="hours">00</span><span class="unit">H</span></span>
+                <span id="m_block"><span id="mins">00</span><span class="unit">M</span></span>
+                <span id="s_block"><span id="secs">12</span><span class="unit">S</span></span>
+            </div>
+            
+            <div class="console-box">
+                <div class="console-header">LIVE_STATUS_SCANNER // ACTIVE_POLLING</div>
+                <div id="console-logs">
+                    </div>
+            </div>
+
+            <button id="manualOverride" class="reveal-btn">UPDATE DETECTED? [INITIALIZE BREACH]</button>
+
+            <div id="success-screen">
+                <h2 class="glitch">MOD UPDATE CAME OUT 🤑</h2>
+            </div>
+        </section>
+
+        <footer>
+            <span>ENCRYPTED CONNECTION: STABLE</span>
+            <span class="version">V.1.0.9-LATEST</span>
+        </footer>
+    </main>
+
+    <script>
+        /* =========================================
+           1. PERSISTENT TIMER LOGIC (Refresh-Proof)
+           =========================================
+        */
+        
+        let savedDate = localStorage.getItem('modWaitStartDate');
+
+        if (!savedDate) {
+            // First time setup: Start counting from 14 days ago
+            const initialStart = new Date();
+            initialStart.setDate(initialStart.getDate() - 14);
+            
+            // Lock this date into the browser's permanent memory
+            localStorage.setItem('modWaitStartDate', initialStart);
+            savedDate = initialStart;
+        }
+
+        const finalStartDate = new Date(savedDate).getTime();
+
+        function updateCountup() {
+            const now = new Date().getTime();
+            const diff = now - finalStartDate;
+
+            // Math for Days, Hours, Minutes, Seconds
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+            // Leading Zeros for a professional UI
+            const dDisplay = days.toString().padStart(2, '0');
+            const hDisplay = hours.toString().padStart(2, '0');
+            const mDisplay = mins.toString().padStart(2, '0');
+            const sDisplay = secs.toString().padStart(2, '0');
+
+            // Set values into the structured HTML blocks
+            document.getElementById('days').innerText = dDisplay;
+            document.getElementById('hours').innerText = hDisplay;
+            document.getElementById('mins').innerText = mDisplay;
+            document.getElementById('secs').innerText = sDisplay;
+        }
+
+        // Start the clock immediately and update every second
+        setInterval(updateCountup, 1000);
+        updateCountup();
+
+
+        /* =========================================
+           2. TYPEWRITER EFFECT
+           =========================================
+        */
+        const headerText = "MONITORING_MOD_RELEASE_STATUS...";
+        let charIndex = 0;
+        function typeWriter() {
+            if (charIndex < headerText.length) {
+                document.getElementById("typewriter").innerHTML += headerText.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, 60);
+            }
+        }
+        window.onload = typeWriter;
+
+
+        /* =========================================
+           3. DYNAMIC CONSOLE LOGS
+           =========================================
+        */
+        const logData = [
+            "Scanning repository for .jar changes...",
+            "Ping: 12ms - Server responsive.",
+            "Checking CurseForge/Modrinth API...",
+            "Analyzing dev-blog metadata...",
+            "Waiting for push request...",
+            "Status: Unchanged.",
+            "Bypassing cache...",
+            "Connection secured via 'me ;)'"
+        ];
+        
+        const consoleDiv = document.getElementById('console-logs');
+        
+        function addLog() {
+            const p = document.createElement('p');
+            const timestamp = new Date().toLocaleTimeString([], { hour12: false });
+            p.innerHTML = `<span style="color: #444;">[${timestamp}]</span> > ${logData[Math.floor(Math.random() * logData.length)]}`;
+            consoleDiv.prepend(p);
+            
+            // Keep only the last 5 logs for a clean look
+            if(consoleDiv.children.length > 5) {
+                consoleDiv.lastChild.remove();
+            }
+        }
+        
+        // Add a new log every 3-5 seconds
+        setInterval(addLog, 4000);
+        addLog(); // Initial log
+
+
+        /* =========================================
+           4. EMOJI RAIN LOGIC
+           =========================================
+        */
+        function createMoneyRain() {
+            const emojiContainer = document.createElement('div');
+            emojiContainer.className = 'money-rain-emoji';
+            emojiContainer.innerText = '🤑';
+            
+            // Randomize spawn position and fall speed
+            const startX = Math.random() * window.innerWidth;
+            const duration = (Math.random() * 3 + 2) + 's'; // 2 to 5 seconds
+            const delay = (Math.random() * 2) + 's'; // up to 2 seconds delay
+            
+            emojiContainer.style.left = startX + 'px';
+            emojiContainer.style.animationDuration = duration;
+            emojiContainer.style.animationDelay = delay;
+            
+            document.body.appendChild(emojiContainer);
+            
+            // Remove the element after it falls to prevent memory lag
+            setTimeout(() => {
+                emojiContainer.remove();
+            }, (parseFloat(duration) + parseFloat(delay)) * 1000 + 1000);
+        }
+
+        /* =========================================
+           5. UPDATE SUCCESS TRIGGER
+           =========================================
+        */
+        const overrideBtn = document.getElementById('manualOverride');
+        const successScreen = document.getElementById('success-screen');
+        const countupDisplay = document.getElementById('countup');
+
+        overrideBtn.addEventListener('click', () => {
+            // Hide timer and button
+            overrideBtn.style.display = "none";
+            countupDisplay.style.opacity = "0.2"; // Dim the timer instead of hiding
+            
+            // Show the "Win" screen
+            successScreen.style.display = "block";
+            
+            // Start the money rain
+            setInterval(createMoneyRain, 200); // New emoji every 0.2 seconds
+            
+            // Professional "Alert" background shift
+            document.body.style.transition = "background-color 0.8s ease";
+            document.body.style.backgroundColor = "#002b00";
+            
+            console.log("MOD UPDATE CONFIRMED BY USER.");
+        });
+
+    </script>
+</body>
+</html>
